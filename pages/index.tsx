@@ -73,9 +73,10 @@ const Home: NextPage = () => {
       <input value={name} onChange={(e: any) => setName(e.target.value)} />
       <button onClick={() => FindId()}>Testt</button>
       {test
-        ? test.map((x: any) => {
+        ? test.map((x: any, index: number) => {
             return (
               <iframe
+                key={index}
                 width="1904"
                 height="772"
                 src={`${x?.embed_url}&parent=my-app-navy-nu.vercel.app/`}
