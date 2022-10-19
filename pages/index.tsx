@@ -79,7 +79,7 @@ const Home: NextPage = () => {
                 key={index}
                 width="1904"
                 height="772"
-                src={`${x?.embed_url}&parent=my-app-navy-nu.vercel.app/`}
+                src={`${x?.embed_url}&parent=my-app-navy-nu`}
                 title="Test"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
               ></iframe>
