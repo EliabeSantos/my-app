@@ -50,7 +50,7 @@ const Home: NextPage = () => {
         <iframe
           width="1904"
           height="772"
-          src={`${test[0]?.url}&parent=vercel.com/`}
+          src={`${test[0]?.embed_url}&parent=vercel.com/`}
           title="Test"
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
         ></iframe>
