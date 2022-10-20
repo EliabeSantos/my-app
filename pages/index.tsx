@@ -9,20 +9,35 @@ import { Videos } from "../services/getVideos";
 import {
   ContentContainer,
   DownloadButton,
+  ExcludeButton,
   InputContainer,
   InputList,
   List,
   MainContainer,
   VideosContainer,
 } from "../styles/mainStyle";
+
+interface FormatedVideos {
+  streamerName: string;
+  selectedClips: Array<any>;
+}
+
 const Home: NextPage = () => {
   const [token, setToken] = useState<string>("");
   const [test, setTest] = useState<any>([]);
   const ref = useRef<any>(null);
   const [streamersNames, setStreamersNames] = useState<Array<string>>([]);
   const [broadId, setBroadId] = useState<Array<string>>([]);
+  const [downloads, setDownloads] = useState<Array<string>>([]);
+  const [NumberVideos, setNumberVideos] = useState<number>(1);
+  const [formatedVideosList, setFormatedVideosList] = useState<
+    FormatedVideos[]
+  >([]);
+  const ChangeNumberVideos = (e: any) => {
+    setNumberVideos(Number(e.target.value));
+  };
+
   const getTwitchData = async () => {
-    console.log(process.env.REACT_APP_CLIENT_SECRET);
     const data = await axios.post(
       "https://id.twitch.tv/oauth2/token",
       {
@@ -56,17 +71,25 @@ const Home: NextPage = () => {
   };
 
   const GetVideos = async () => {
-    let controlVideos = [];
-
+    let FullControlVideos = [];
     for (let i = 0; i < broadId.length; i++) {
+      let controlVideos = {
+        streamerName: "",
+        selectedClips: [],
+      } as FormatedVideos;
       const videos = await Videos({
         broadId: broadId[i],
         token: token,
       });
-      controlVideos.push(videos.data[0]);
-    }
+      controlVideos.streamerName = streamersNames[i];
 
-    setTest(controlVideos);
+      for (let y = 0; y < NumberVideos; y++) {
+        controlVideos.selectedClips.push(videos.data[y]);
+      }
+      FullControlVideos.push(controlVideos);
+    }
+    setFormatedVideosList(FullControlVideos);
+    setTest(FullControlVideos);
   };
 
   useEffect(() => {
@@ -78,21 +101,36 @@ const Home: NextPage = () => {
     setName("");
   };
 
-  const HandleTest = (e: any) => {
-    const test = document.getElementById("myFrame-0") as any;
-    if (ref.current.offsetParent) console.log(ref);
-  };
   const RemoveName = (e: any) => {
     setStreamersNames(streamersNames.filter((x: string) => x != e.target.id));
-    console.log(
-      setTest(
-        test.filter(
-          (x: any) =>
-            x?.broadcaster_name.toLowerCase() != e.target.id.toLowerCase()
-        )
+    setFormatedVideosList(
+      formatedVideosList.filter(
+        (x) => x.streamerName.toLowerCase() != e.target.id.toLowerCase()
       )
     );
   };
+  const RemoveVideoFromList = (
+    currentStreamer: any,
+    index: number,
+    currentClip: any
+  ) => {
+    let control: any = formatedVideosList;
+    control[index].selectedClips = control[index].selectedClips.filter(
+      (clip: any) => clip.id != currentClip
+    );
+    if (control[index].selectedClips.length == 0) {
+      setStreamersNames(
+        streamersNames.filter(
+          (x: string) => x != control[index].streamerName.toLowerCase()
+        )
+      );
+      control[index] = {};
+    }
+
+    setFormatedVideosList([...control]);
+    console.log(formatedVideosList);
+  };
+
   return (
     <MainContainer>
       <Head>
@@ -120,28 +158,84 @@ const Home: NextPage = () => {
               value={name}
               onChange={(e: any) => setName(e.target.value)}
             />
+            <input
+              id="number"
+              type="number"
+              min={1}
+              max={5}
+              onChange={ChangeNumberVideos}
+            />
             <button onClick={HandleAddStreamer}>+</button>
           </InputList>
-          <button onClick={() => FindId()}>Buscar</button>
+          <button
+            onClick={() => {
+              setFormatedVideosList([]);
+              FindId();
+            }}
+          >
+            Buscar
+          </button>
         </InputContainer>
         <VideosContainer>
-          {test
-            ? test.map((x: any, index: number) => {
-                if (x)
-                  return (
-                    <div key={index}>
-                      <video
-                        controls
-                        src={`${x?.thumbnail_url.replace(
-                          "-preview-480x272.jpg",
-                          ""
-                        )}.mp4`}
-                      ></video>
-                      <DownloadButton>Baixar</DownloadButton>
-                    </div>
-                  );
-              })
-            : null}
+          {React.Children.toArray(
+            formatedVideosList?.map(
+              (currentStreamer: FormatedVideos, index: number) => (
+                <div>
+                  <h1>{currentStreamer.streamerName}</h1>
+                  <div>
+                    {React.Children.toArray(
+                      currentStreamer?.selectedClips?.map(
+                        (currentClip: any) => {
+                          const src = `${currentClip?.thumbnail_url.replace(
+                            "-preview-480x272.jpg",
+                            ""
+                          )}.mp4`;
+                          return (
+                            <div>
+                              <video controls src={src}></video>
+                              <DownloadButton
+                                clicked={
+                                  downloads.find(
+                                    (y: string) => y == currentClip.id
+                                  )?.length
+                                    ? true
+                                    : false
+                                }
+                              >
+                                <a
+                                  onClick={() => {
+                                    setDownloads([
+                                      ...downloads,
+                                      currentClip.id,
+                                    ]);
+                                  }}
+                                  href={src}
+                                  download
+                                >
+                                  Baixar
+                                </a>
+                              </DownloadButton>
+                              <ExcludeButton
+                                onClick={() => {
+                                  RemoveVideoFromList(
+                                    currentStreamer,
+                                    index,
+                                    currentClip.id
+                                  );
+                                }}
+                              >
+                                X
+                              </ExcludeButton>
+                            </div>
+                          );
+                        }
+                      )
+                    )}
+                  </div>
+                </div>
+              )
+            )
+          )}
         </VideosContainer>
       </ContentContainer>
     </MainContainer>
