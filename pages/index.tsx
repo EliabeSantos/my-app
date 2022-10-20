@@ -51,8 +51,6 @@ const Home: NextPage = () => {
     }
 
     setBroadId(controlBroad);
-    // console.log("users", usersdata);
-    // setBroadId(usersdata.data.data[0].id);
   };
 
   const GetVideos = async () => {
