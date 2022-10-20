@@ -87,8 +87,8 @@ const Home: NextPage = () => {
 
       <List>
         {React.Children.toArray(
-          streamersNames.map((name, index: number) => (
-            <p key={index}>
+          streamersNames.map((name) => (
+            <p>
               {name}
               <button>X</button>
             </p>
@@ -110,9 +110,8 @@ const Home: NextPage = () => {
           {test
             ? test.map((x: any, index: number) => {
                 return (
-                  <div>
+                  <div key={index}>
                     <iframe
-                      key={index}
                       src={`${x?.embed_url}&parent=${process.env.NEXT_PUBLIC_PARENT}`}
                       title="Test"
                       allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
