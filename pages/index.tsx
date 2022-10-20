@@ -76,7 +76,6 @@ const Home: NextPage = () => {
   const HandleAddStreamer = () => {
     setName("");
     setStreamersNames([...streamersNames, name]);
-    console.log(streamersNames);
   };
   return (
     <MainContainer>
@@ -88,8 +87,8 @@ const Home: NextPage = () => {
 
       <List>
         {React.Children.toArray(
-          streamersNames.map((name) => (
-            <p>
+          streamersNames.map((name, index: number) => (
+            <p key={index}>
               {name}
               <button>X</button>
             </p>
