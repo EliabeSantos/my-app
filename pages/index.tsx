@@ -2,12 +2,13 @@ import axios from "axios";
 import type { NextPage } from "next";
 import Head from "next/head";
 import Image from "next/image";
-import React from "react";
+import React, { useRef } from "react";
 import { useEffect, useState } from "react";
 import { GetBroad } from "../services/getBroadId";
 import { Videos } from "../services/getVideos";
 import {
   ContentContainer,
+  DownloadButton,
   InputContainer,
   InputList,
   List,
@@ -17,6 +18,7 @@ import {
 const Home: NextPage = () => {
   const [token, setToken] = useState<string>("");
   const [test, setTest] = useState<any>([]);
+  const ref = useRef<any>(null);
   const [streamersNames, setStreamersNames] = useState<Array<string>>([]);
   const [broadId, setBroadId] = useState<Array<string>>([]);
   const getTwitchData = async () => {
@@ -72,8 +74,24 @@ const Home: NextPage = () => {
   }, [broadId]);
 
   const HandleAddStreamer = () => {
+    setStreamersNames([...streamersNames, ...name.split(" ")]);
     setName("");
-    setStreamersNames([...streamersNames, name]);
+  };
+
+  const HandleTest = (e: any) => {
+    const test = document.getElementById("myFrame-0") as any;
+    if (ref.current.offsetParent) console.log(ref);
+  };
+  const RemoveName = (e: any) => {
+    setStreamersNames(streamersNames.filter((x: string) => x != e.target.id));
+    console.log(
+      setTest(
+        test.filter(
+          (x: any) =>
+            x?.broadcaster_name.toLowerCase() != e.target.id.toLowerCase()
+        )
+      )
+    );
   };
   return (
     <MainContainer>
@@ -88,7 +106,9 @@ const Home: NextPage = () => {
           streamersNames.map((name) => (
             <p>
               {name}
-              <button>X</button>
+              <button id={name} onClick={RemoveName}>
+                X
+              </button>
             </p>
           ))
         )}
@@ -107,15 +127,19 @@ const Home: NextPage = () => {
         <VideosContainer>
           {test
             ? test.map((x: any, index: number) => {
-                return (
-                  <div key={index}>
-                    <iframe
-                      src={`${x?.embed_url}&parent=${process.env.NEXT_PUBLIC_PARENT}`}
-                      title="Test"
-                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    ></iframe>
-                  </div>
-                );
+                if (x)
+                  return (
+                    <div key={index}>
+                      <video
+                        controls
+                        src={`${x?.thumbnail_url.replace(
+                          "-preview-480x272.jpg",
+                          ""
+                        )}.mp4`}
+                      ></video>
+                      <DownloadButton>Baixar</DownloadButton>
+                    </div>
+                  );
               })
             : null}
         </VideosContainer>

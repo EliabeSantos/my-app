@@ -53,6 +53,17 @@ export const VideosContainer = styled.div`
   div {
     display: flex;
     justify-content: center;
+    max-width: 100%;
+    position: relative;
+
+    video {
+      max-width: 90%;
+    }
+    button {
+      position: absolute;
+      top: 0;
+      left: 0;
+    }
   }
 `;
 
@@ -76,4 +87,11 @@ export const List = styled.div`
 export const ContentContainer = styled.div`
   display: block;
   width: 100%;
+`;
+
+export const DownloadButton = styled.button`
+  position: absolute;
+  top: 0;
+  left: 0;
+  background-color: grenn;
 `;
